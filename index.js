@@ -17,6 +17,54 @@ async function run() {
     try {
         await client.connect();
         const toolsCollection = client.db("Industico").collection("tools");
+        const usersCollection = client.db("Industico").collection("users");
+        const ordersCollection = client.db("Industico").collection("orders");
+
+        // get all tools
+        app.get('/items', async (req, res) => {
+            const query = {};
+            const cursor = toolsCollection.find(query);
+            const items = await cursor.toArray();
+            res.send(items);
+        });
+
+        // get single tool by id
+        app.get('/items/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: ObjectId(id) };
+            const result = await toolsCollection.findOne(query);
+            res.send(result);
+        });
+
+        // update or insert verify user in the database
+        app.put("/user/:email", async (req, res) => {
+            const email = req.params.email;
+            const user = req.body;
+            const filter = { email: email };
+            const options = { upsert: true };
+            const updateDoc = {
+                $set: user,
+            };
+            const result = await usersCollection.updateOne(filter, updateDoc, options);
+            // const token = jwt.sign({ email: email }, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '20d' });
+            res.send(result);
+        });
+
+        // insert user order
+        app.post('/order', async (req, res) => {
+            const order = req.body;
+            const result = await ordersCollection.insertOne(order);
+            res.send(result);
+        });
+
+        // get user by email
+        app.get("/user/:email", async (req, res) => {
+            const email = req.params.email;
+            const query = { email };
+            const user = await usersCollection.findOne(query);
+            res.send(user);
+        });
+
     } finally {
         //   await client.close();
     }
