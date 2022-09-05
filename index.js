@@ -21,6 +21,7 @@ async function run() {
         const toolsCollection = client.db("Industico").collection("tools");
         const usersCollection = client.db("Industico").collection("users");
         const ordersCollection = client.db("Industico").collection("orders");
+        const paymentsCollection = client.db("Industico").collection("payments");
 
         // get all tools
         app.get('/items', async (req, res) => {
@@ -101,6 +102,23 @@ async function run() {
                 payment_method_types: ['card']
             });
             res.send({ clientSecret: paymentIntent.client_secret });
+        });
+
+        // update order information
+        app.patch('/order/:id', verifyJwt, async (req, res) => {
+            const id = req.params.id;
+            const payment = req.body;
+            const filter = { _id: ObjectId(id) };
+            const updatedDoc = {
+                $set: {
+                    paid: true,
+                    status: payment.status,
+                    transactionId: payment.transactionId
+                }
+            }
+            const result = await paymentsCollection.insertOne(payment);
+            const updatedOrder = await ordersCollection.updateOne(filter, updatedDoc);
+            res.send(updatedOrder);
         });
 
     } finally {
