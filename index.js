@@ -129,6 +129,12 @@ async function run() {
             res.send(result);
         });
 
+        // get user review
+        app.get('/review', async (req, res) => {
+            const reviews = await reviewsCollection.find().toArray();
+            res.send(reviews);
+        });
+
     } finally {
         //   await client.close();
     }
