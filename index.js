@@ -22,6 +22,7 @@ async function run() {
         const usersCollection = client.db("Industico").collection("users");
         const ordersCollection = client.db("Industico").collection("orders");
         const paymentsCollection = client.db("Industico").collection("payments");
+        const reviewsCollection = client.db("Industico").collection("reviews");
 
         // get all tools
         app.get('/items', async (req, res) => {
@@ -105,7 +106,7 @@ async function run() {
         });
 
         // update order information
-        app.patch('/order/:id', verifyJwt, async (req, res) => {
+        app.patch('/order/:id', async (req, res) => {
             const id = req.params.id;
             const payment = req.body;
             const filter = { _id: ObjectId(id) };
@@ -113,12 +114,19 @@ async function run() {
                 $set: {
                     paid: true,
                     status: payment.status,
-                    transactionId: payment.transactionId
+                    transactionId: payment?.transactionId
                 }
             }
             const result = await paymentsCollection.insertOne(payment);
             const updatedOrder = await ordersCollection.updateOne(filter, updatedDoc);
             res.send(updatedOrder);
+        });
+
+        // insert user review
+        app.post('/review', async (req, res) => {
+            const review = req.body;
+            const result = await reviewsCollection.insertOne(review);
+            res.send(result);
         });
 
     } finally {
