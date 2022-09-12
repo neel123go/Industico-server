@@ -61,6 +61,20 @@ async function run() {
             res.send(result);
         });
 
+        // get all users orders
+        app.get('/orders', async (req, res) => {
+            const orders = await ordersCollection.find().toArray();
+            res.send(orders);
+        });
+
+        // delete user order by id
+        app.delete('/order/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: ObjectId(id) };
+            const result = await ordersCollection.deleteOne(query);
+            res.send(result);
+        });
+
         // get user by email
         app.get("/user/:email", async (req, res) => {
             const email = req.params.email;
@@ -164,6 +178,14 @@ async function run() {
         app.post('/items', async (req, res) => {
             const tool = req.body;
             const result = await toolsCollection.insertOne(tool);
+            res.send(result);
+        });
+
+        // delete items by id
+        app.delete('/items/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: ObjectId(id) };
+            const result = await toolsCollection.deleteOne(query);
             res.send(result);
         });
 
