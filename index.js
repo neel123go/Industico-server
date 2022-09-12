@@ -40,6 +40,7 @@ async function run() {
         const ordersCollection = client.db("Industico").collection("orders");
         const paymentsCollection = client.db("Industico").collection("payments");
         const reviewsCollection = client.db("Industico").collection("reviews");
+        const queriesCollection = client.db("Industico").collection("queries");
 
         // Verify Admin
         const verifyAdmin = async (req, res, next) => {
@@ -223,6 +224,13 @@ async function run() {
             const id = req.params.id;
             const query = { _id: ObjectId(id) };
             const result = await toolsCollection.deleteOne(query);
+            res.send(result);
+        });
+
+        // add queries by user
+        app.post('/queries', async (req, res) => {
+            const query = req.body;
+            const result = await queriesCollection.insertOne(query);
             res.send(result);
         });
 
