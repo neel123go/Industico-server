@@ -158,7 +158,14 @@ async function run() {
             const user = await usersCollection.findOne({ email: email });
             const isAdmin = user.role === 'admin';
             res.send({ admin: isAdmin });
-        })
+        });
+
+        // insert items
+        app.post('/items', async (req, res) => {
+            const tool = req.body;
+            const result = await toolsCollection.insertOne(tool);
+            res.send(result);
+        });
 
     } finally {
         //   await client.close();
